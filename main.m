@@ -2,7 +2,7 @@ clc, clearvars, close all;
 
 %% Image loading and preprocessing
 
-path = 'cystic/2.jpg';
+path = 'noncystic/2.jpg';
 image = imread(path);
 
 gray_image = im2gray(image);
@@ -47,15 +47,39 @@ subplot(2, 3, 5), imshow(image_filled), title("Gaps Closed & Holes Filled");
 
 [label, count] = bwlabel(image_filled, 8);
 
+%% Calculate Region Properties
+
+stats = regionprops(label, 'Area', 'Eccentricity', 'Perimeter');
+
+%% Filter out Non-Cyst Regions
+
+min_area = 70;
+max_eccentricity = 0.9;
+max_perimeter_area_ratio = 1.5;
+
+cyst_mask = false(size(label));
+
+for i = 1:count
+    if stats(i).Area > min_area && ...
+       stats(i).Eccentricity < max_eccentricity && ...
+       (stats(i).Perimeter^2 / (4 * pi * stats(i).Area)) < max_perimeter_area_ratio
+        cyst_mask(label == i) = true;
+    end
+end
+
+cyst_label = label .* cyst_mask;
+
+[~, cyst_count] = bwlabel(cyst_label, 8);
+
 %% Highlighting
 
 original_rgb = cat(3, gray_image, gray_image, gray_image);
 
-overlay = label2rgb(label, 'jet', 'k', 'shuffle');
+overlay = label2rgb(cyst_label, 'jet', 'k', 'shuffle');
 
 alpha = 0.5;
 overlayed_image = imfuse(original_rgb, overlay, 'blend', 'Scaling', 'none');
 
 subplot(2, 3, 6), imshow(overlayed_image), title("Cysts Highlighted");
 
-fprintf("Cysts detected: %i\n", count);
+fprintf("Cysts detected: %i\n", cyst_count);
