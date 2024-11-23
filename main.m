@@ -20,7 +20,7 @@ function [gray_image, image_stretch, image_binarized, image_closed, ...
     image_closed = imclose(image_opened, se_close);
 
     % Remove small objects
-    min_size = 70;
+    min_size = 80;
     image_filtered = bwareaopen(image_closed, min_size);
     image_filled = imfill(image_filtered, 'holes');
 
