@@ -16,7 +16,7 @@ function run_gui()
     dropdown = uidropdown(grid, ...
         'Items', files, ...
         'Value', files{1}, ...
-        'ValueChangedFcn', @(src, event) process_image(src));
+        'ValueChangedFcn', @(src, event) handle_images(src));
     dropdown.Layout.Row = 1;
     dropdown.Layout.Column = 1;
 
@@ -72,7 +72,7 @@ function run_gui()
     
         imshow(image_stretch, 'Parent', axesArray(2));
         title(axesArray(2), 'Contrast Enhanced');
-    
+        
         imshow(image_binarized, 'Parent', axesArray(3));
         title(axesArray(3), 'Binarized');
     
