@@ -1,12 +1,17 @@
-function gui()
+function run_gui()
+    % run_gui.m
+    % Function for GUI logic
+
     clc, close all force;
 
+    %% Initialize figure and grid
     fig = uifigure('Name', 'Cyst Detection GUI', 'Position', [100, 100, 600, 500]);
 
     grid = uigridlayout(fig, [3, 3]);
     grid.RowHeight = {'1x', '2x', '2x'};
     grid.ColumnWidth = {'1x', '1x', '1x'};
     
+    %% Initialize file selection dropdown
     files = get_files_in_workspace();
     dropdown = uidropdown(grid, ...
         'Items', files, ...
@@ -15,6 +20,7 @@ function gui()
     dropdown.Layout.Row = 1;
     dropdown.Layout.Column = 1;
 
+    %% Add labels
     titleText = uilabel(grid, ...
         'Text', sprintf('Ovarian\nCyst\nSegmenter'), ...
         'HorizontalAlignment', 'center', ...
@@ -31,6 +37,7 @@ function gui()
     cystCountText.Layout.Row = 1;
     cystCountText.Layout.Column = 3;
 
+    %% Initialize objects on grid array
     axesArray = gobjects(6, 1);
     for i = 1:6
         axesArray(i) = uiaxes(grid);
@@ -38,11 +45,15 @@ function gui()
         axesArray(i).Layout.Column = mod(i - 1, 3) + 1;
     end
 
+    %% Handle selected image for processing
     if ~strcmp(files{1}, 'No files available')
-        process_image(dropdown);
+        handle_images(dropdown);
     end
 
-    function process_image(src)
+    function handle_images(src)
+        % Helper function to call image processing pipeline and display
+        % images to grid array
+
         selectedFile = src.Value;
         fullFilePath = fullfile('images', selectedFile);
         
@@ -52,7 +63,7 @@ function gui()
         end
     
         [gray_image, image_stretch, image_binarized, image_closed, ...
-         image_filled, overlayed_image, cyst_count] = main(fullFilePath);
+         image_filled, overlayed_image, cyst_count] = process_image(fullFilePath);
     
         cystCountText.Text = sprintf('Cysts detected: %i', cyst_count);
     
@@ -75,7 +86,9 @@ function gui()
         title(axesArray(6), 'Cysts Highlighted');
     end
 
+    %% Handle files
     function files = get_files_in_workspace()
+        % Helper function to fetch image files from directory
         
         fileStructPNG = dir(fullfile('images', '*.png'));
         fileStructJPG = dir(fullfile('images', '*.jpg'));
