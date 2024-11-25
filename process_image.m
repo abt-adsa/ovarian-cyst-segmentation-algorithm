@@ -13,7 +13,7 @@ function [gray_image, image_stretch, image_binarized, image_closed, ...
     %% Enhancement
     image_medfilt = medfilt2(gray_image);
 
-    % Histogra stretching
+    % Histogram stretching
     stretch_threshold = 0.1;
     image_stretch = imadjust(image_medfilt, stretchlim(image_medfilt, [0 stretch_threshold]), []);
 
